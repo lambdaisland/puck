@@ -1,0 +1,15 @@
+#!bin/bb
+
+(ns proj
+  (:require [clojure.java.shell :as sh]
+            [lioss.main :as lioss]
+            [lioss.shellutil :as shellutil]))
+
+(lioss/main
+ {:license        :mpl
+  :inception-year 2021
+  :description    "ClojureScript wrapper around Pixi.js"})
+
+;; Local Variables:
+;; mode:clojure
+;; End:

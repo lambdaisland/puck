@@ -1,0 +1,24 @@
+{:paths ["src" "resources"]
+
+ :deps
+ {org.clojure/clojure {:mvn/version "1.10.2"}
+
+  integrant/integrant {:mvn/version "0.8.0"}
+  integrant/repl      {:mvn/version "0.3.2"}
+  aero/aero           {:mvn/version "1.1.6"}
+  ring/ring-defaults  {:mvn/version "0.3.2"}
+  metosin/reitit      {:mvn/version "0.5.10"}
+
+  reagent/reagent            {:mvn/version "1.0.0"}
+  cljs-bean/cljs-bean        {:mvn/version "1.6.0"}
+  applied-science/js-interop {:mvn/version "0.2.7"}
+  mhuebert/kitchen-async     {:mvn/version "0.1.0"}}
+
+ :aliases
+ {:dev
+  {:extra-paths ["dev"]
+   :extra-deps  {thheller/shadow-cljs {:mvn/version "2.11.14"}}}
+
+  :test
+  {:extra-paths ["test"]
+   :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0.732"}}}}}
