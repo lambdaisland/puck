@@ -4,7 +4,7 @@
 <!-- [![CircleCI](https://circleci.com/gh/lambdaisland/puck.svg?style=svg)](https://circleci.com/gh/lambdaisland/puck) [![cljdoc badge](https://cljdoc.org/badge/lambdaisland/puck)](https://cljdoc.org/d/lambdaisland/puck) [![Clojars Project](https://img.shields.io/clojars/v/lambdaisland/puck.svg)](https://clojars.org/lambdaisland/puck) -->
 <!-- /badges -->
 
-![](https://upload.wikimedia.org/wikipedia/commons/4/48/Puck_1629.JPG)
+[![](https://upload.wikimedia.org/wikipedia/commons/4/48/Puck_1629.JPG)](https://en.wikipedia.org/wiki/Puck_(folklore))
 
 ClojureScript wrapper around Pixi.js. Work in progress.
 
