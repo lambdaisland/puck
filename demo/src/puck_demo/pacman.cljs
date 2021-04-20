@@ -19,6 +19,7 @@
 
 ;; Load the sprite sheet, this returns a promise, but thanks to kitchen-async
 ;; that makes little difference.
+;; This spritesheet JSON was created with TexturePacker.
 (promise/let [{:keys [sprites]} (p/load-resources! game {:sprites "pacman_sprites.min.json"})
               ;; This is a JS object, with the keys coming from the names in the
               ;; JSON, and the values being pixi/Texture objects that we can use
