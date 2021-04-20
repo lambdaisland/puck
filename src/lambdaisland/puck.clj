@@ -15,3 +15,9 @@
     `(doseq [p# (util/keypaths ~m)
              :let [v# (get-in ~m p#)]]
        (j/assoc-in! ~obj p# v#))))
+
+(defmacro with-fill [[graphics fill-opts] & body]
+  `(do
+     (begin-fill ~graphics ~fill-opts)
+     ~@body
+     (end-fill ~graphics)))

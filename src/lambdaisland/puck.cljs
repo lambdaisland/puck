@@ -1,14 +1,13 @@
 (ns lambdaisland.puck
   (:require ["pixi.js" :as pixi]
-            ["hammerjs" :as Hammer]
+            ["@pixi/utils" :as pixi-utils]
             [clojure.string :as str]
-            [cljs-bean.core :as bean]
             [applied-science.js-interop :as j]
             [kitchen-async.promise :as p]
             [lambdaisland.puck.types]
             [camel-snake-kebab.core :as csk]
             [lambdaisland.puck.util :as util])
-  (:require-macros [lambdaisland.puck :refer [assign!]]))
+  (:require-macros [lambdaisland.puck :refer [assign! with-fill]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helpers
@@ -26,15 +25,13 @@
   ([]
    (full-screen-app nil))
   ([opts]
-   (let [app (application (merge {:width js/window.innerWidth
-                                  :height js/window.innerHeight
-                                  :resolution js/window.devicePixelRatio
-                                  :auto-density true
-                                  :auto-resize true
-                                  :resize-to js/window}
-                                 opts))]
-     (js/document.body.appendChild (:view app))
-     app)))
+   (application (merge {:width js/window.innerWidth
+                        :height js/window.innerHeight
+                        :resolution js/window.devicePixelRatio
+                        :auto-density true
+                        :auto-resize true
+                        :resize-to js/window}
+                       opts))))
 
 (defn say-hello! []
   (.sayHello ^js pixi/utils (if (.isWebGLSupported ^js pixi/utils)
@@ -65,18 +62,28 @@
   Adding a new listener for the same source/type/key will replace the previous
   one (similar to `add-watch`, handy for REPL or hot reload). The key defaults
   to `type`, so if you want multiple listeners with the same source and event
-  type you have to distinguish them by key."
+  type you have to distinguish them by key.
+
+  You can pass a collection for `type` to listen to multiple signals in one go."
   ([source type callback]
-   (-listen! source type type callback))
+   (if (coll? type)
+     (run! #(listen! source % % callback) type)
+     (-listen! source type type callback)))
   ([source type key callback]
-   (-listen! source type key callback)))
+   (if (coll? type)
+     (run! #(listen! source % key callback) type)
+     (-listen! source type key callback))))
 
 (defn unlisten!
   "Unregister a previously registered listener."
   ([source type]
-   (-unlisten! source type type))
+   (if (coll? type)
+     (run! #(unlisten! source % %) type)
+     (-unlisten! source type type)))
   ([source type key]
-   (-unlisten! source type key)))
+   (if (coll? type)
+     (run! #(unlisten! source % key) type)
+     (-unlisten! source type key))))
 
 (defn- key-str [k]
   (cond
@@ -138,7 +145,7 @@
   ;; Listen to events like :mousedown or :touchstart. Works on sprites,
   ;; graphics, containers, etc. Make sure to `(j/assoc! sprite :interactive
   ;; true)` so the InteractionManager kicks in.
-  pixi/DisplayObject
+  pixi-utils/EventEmitter
   (-listen! [obj signal key callback]
     (-unlisten! obj signal key)
     (j/assoc-in! obj [:__listeners (key-str key)] callback)
@@ -243,6 +250,14 @@
   ([^js renderable ^js rect ^boolean skip-update-children?]
    (.getLocalBounds renderable rect skip-update-children?)))
 
+(defn local-position [interaction-data display-object]
+  (.getLocalPosition ^js interaction-data ^js display-object))
+
+(defn point
+  "Create a pixi/Point (2D vector)"
+  [x y]
+  (pixi/Point. x y))
+
 (defn rectangle
   "Create a new pixi/Rectangle"
   [x y w h]
@@ -268,6 +283,11 @@
   (pixi/Sprite. (if-let [texture (:texture resource-or-texture)]
                   texture
                   resource-or-texture)))
+
+(defn animated-sprite
+  "Create an animated sprite from a sequence of textures"
+  [textures]
+  (pixi/AnimatedSprite. (into-array textures)))
 
 (defn text
   "Create a text display object with a given message and, optionally, style."
@@ -296,3 +316,47 @@
   "Remove all children from a container"
   [^js container]
   (.removeChildren container))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Graphics API
+
+(defn js-object [m]
+  (let [obj #js {}]
+    (reduce-kv (fn [_ k v]
+                 (unchecked-set obj
+                                (if (keyword? k)
+                                  (name k)
+                                  (str k))
+                                v))
+               nil
+               m)
+    obj))
+
+(defn begin-fill [g fill-opts]
+  (if (number? fill-opts)
+    (.beginFill ^js g fill-opts)
+    (.beginTextureFill ^js g (js-object fill-opts))))
+
+(defn end-fill [g]
+  (.endFill ^js g))
+
+(defn line-style [g line-opts]
+  (.lineStyle g (js-object line-opts)))
+
+(defn line
+  ([g p1 p2]
+   (.drawPolygon ^js g (j/lit [p1 p2])))
+  ([g x1 y1 x2 y2]
+   (line g (point x1 y1) (point x2 y2))))
+
+(defn rect [g x y width height]
+  (.drawRect ^js g x y width height))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Animation
+
+(defn play! [animated-sprite]
+  (.play ^js animated-sprite))
+
+(defn stop! [animated-sprite]
+  (.stop ^js animated-sprite))

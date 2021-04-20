@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "pixi.js": "^5.3.9",
+    "collisions": "^2.0.13"
+  },
+  "devDependencies": {
+    "shadow-cljs": "^2.11.26"
+  }
+}

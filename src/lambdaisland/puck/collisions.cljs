@@ -9,21 +9,21 @@
 (def Point collisions/Point)
 (def Result collisions/Result)
 
-(types/register-keys-printer Collisions 'collisions/Collisions [:_bvh])
-(types/register-keys-printer (type (.-_bvh (Collisions.))) 'collisions/BVH [:_bodies])
-(types/register-keys-printer Circle 'collisions/Circle [:x :y :radius :scale :padding])
-(types/register-keys-printer Point 'collisions/Point [:x :y :padding])
-(types/register-keys-printer Polygon 'collisions/Polygon [:x :y :_points :angle :scale_x :scale_y :padding])
-(types/register-keys-printer Result 'collisions/Result [:collision :a :b :a_in_b :b_in_a :overlap :overlap_x :overlap_y])
+(types/register-keys-printer ^js Collisions 'collisions/Collisions [:_bvh])
+(types/register-keys-printer ^js (type (.-_bvh (Collisions.))) 'collisions/BVH [:_bodies])
+(types/register-keys-printer ^js Circle 'collisions/Circle [:x :y :radius :scale :padding])
+(types/register-keys-printer ^js Point 'collisions/Point [:x :y :padding])
+(types/register-keys-printer ^js Polygon 'collisions/Polygon [:x :y :_points :angle :scale_x :scale_y :padding])
+(types/register-keys-printer ^js Result 'collisions/Result [:collision :a :b :a_in_b :b_in_a :overlap :overlap_x :overlap_y])
 
 (extend-type Collisions
   ITransientCollection
-  (-conj! [^js coll obj]
-    (.insert coll obj)
+  (-conj! [coll obj]
+    (.insert ^js coll obj)
     coll)
   ITransientSet
-  (-disjoin! [^js coll obj]
-    (.remove coll obj)
+  (-disjoin! [coll obj]
+    (.remove ^js coll obj)
     coll))
 
 (defn system []
@@ -38,8 +38,15 @@
 (defn collides? [^js a b result]
   (.collides a b result))
 
-(defn rectangle [x y width height]
-  (Polygon. x y (j/lit [[0 0] [width 0] [width height] [0 height]])))
+(defn rectangle
+  "Create a collisions rectangular polygon, you can pass a Pixi.js Rect in here."
+  ([{:keys [x y width height]}]
+   (rectangle x y width height))
+  ([x y width height]
+   (Polygon. x y (j/lit [[0 0] [width 0] [width height] [0 height]]))))
+
+(defn polygon [x y points]
+  (Polygon. x y (into-array (map #(j/lit [(:x %) (:y %)]) points))))
 
 (comment
   (Circle. 10 20 30 40 50)

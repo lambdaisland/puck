@@ -1,18 +1,10 @@
 {:paths ["src" "resources"]
 
  :deps
- {org.clojure/clojure {:mvn/version "1.10.2"}
-
-  integrant/integrant {:mvn/version "0.8.0"}
-  integrant/repl      {:mvn/version "0.3.2"}
-  aero/aero           {:mvn/version "1.1.6"}
-  ring/ring-defaults  {:mvn/version "0.3.2"}
-  metosin/reitit      {:mvn/version "0.5.10"}
-
-  reagent/reagent            {:mvn/version "1.0.0"}
-  cljs-bean/cljs-bean        {:mvn/version "1.6.0"}
-  applied-science/js-interop {:mvn/version "0.2.7"}
-  mhuebert/kitchen-async     {:mvn/version "0.1.0"}}
+ {applied-science/js-interop {:mvn/version "0.2.7"}
+  mhuebert/kitchen-async     {:mvn/version "0.1.0"}
+  lambdaisland/dom-types     {:sha     "4c35f25ba4446a4b2c29b349ddc4ba1e353d3b9e"
+                              :git/url "https://github.com/lambdaisland/dom-types"}}
 
  :aliases
  {:dev

@@ -1,0 +1,16 @@
+{:deps
+ {:aliases [:dev]}
+
+ :dev-http
+ {8008 "classpath:public"}
+
+ :builds
+ {:main
+  {:target     :browser
+   :modules    {:main {:entries [puck-demo.pacman]}}
+   :output-dir "resources/public/ui"
+   :asset-path "/ui"
+   :devtools   {:infer-externs :auto
+                :repl-pprint true
+                :warnings-as-errors #{:undeclared-var}
+                :after-load spel.core/on-hot-reload}}}}

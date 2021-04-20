@@ -139,6 +139,7 @@
           (prn sprite))))))
 
 (comment
+  (split-img! "/home/arne/GameAssets/pacman/pacman.png" "/home/arne/GameAssets/pacman/pacman_")
   (split-img! "/tmp/minispel/tekening.png" "/tmp/minispel/sprite_")
   (split-img! "/home/arne/GameAssets/tavern inn by CBL/sprites/tilableFloorsAndWalls.png"
               "/home/arne/GameAssets/tavern inn by CBL/individual/floors_walls_")

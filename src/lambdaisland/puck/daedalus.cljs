@@ -25,7 +25,7 @@
   (drawRect [x y width height]
     (.drawRect graphics x y width height))
   (drawTri [this points]
-    (.drawPolygon graphics (into-array (map (fn [[x y]] (math/point x y))
+    (.drawPolygon graphics (into-array (map (fn [[x y]] (puck/point x y))
                                             (partition 2 points))))))
 
 (defn simple-view

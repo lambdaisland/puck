@@ -6,6 +6,7 @@
             [applied-science.js-interop :as j]
             [camel-snake-kebab.core :as csk]
             [lambdaisland.data-printers :as data-printers]
+            [lambdaisland.dom-types]
             [clojure.core.protocols :as protocols]))
 
 (defn lookupify
@@ -68,10 +69,13 @@
 
 (register-keys-printer pixi/Container 'pixi/Container [:children :transform :visible])
 (register-keys-printer pixi/Sprite 'pixi/Sprite [:position :anchor :scale :texture])
+(register-keys-printer pixi/AnimatedSprite 'pixi/AnimatedSprite [:position :anchor :scale :textures :animationSpeed :autoUpdate :currentFrame :loop :playing :totalFrames])
 (register-keys-printer pixi/Texture 'pixi/Texture [:baseTexture :orig :trim])
 (register-keys-printer pixi/BaseTexture 'pixi/BaseTexture [:width :height :resolution :resource])
 (register-keys-printer pixi/Rectangle 'pixi/Rectangle [:x :y :width :height])
-
+(register-keys-printer pixi/Graphics 'pixi/Graphics [:fill :line :tint])
+(register-keys-printer pixi/FillStyle 'pixi/FillStyle [:alpha :color :matrix :texture :visible])
+(register-keys-printer pixi/LineStyle 'pixi/LineStyle [:alignment :cap :join :miterLimit :native :width :alpha :color :matrix :texture :visible])
 
 (register-keys-printer resource-loader/Resource 'resource-loader/Resource [:name :url :type :metadata :spritesheet :textures])
 (register-keys-printer pixi/resources.Resource 'pixi/Resource [:name :url :type :metadata :spritesheet :textures])
@@ -81,6 +85,9 @@
 
 
 (extend-type pixi/Container
+  ISeqable
+  (-seq [this]
+    (seq (.-children this)))
   ;; Lookup by keyword for js obj attributes, but also lookup display objects as
   ;; if it's a set, so you can use `contains?`
   ILookup
@@ -135,81 +142,14 @@
     (doto (.clone coll)
       (j/assoc! k v))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; DOM / browser types
-
-(def ^:dynamic *max-attr-length* 250)
-
-(defn- truncate-attr [attr-val]
-  (if (and (string? attr-val) (< *max-attr-length* (.-length attr-val)))
-    (str (subs attr-val 0 *max-attr-length*) "...")
-    attr-val))
-
-(register-printer js/Text js/Text #(.-data %))
-
-(register-printer
- js/Element
- 'js/Element (fn hiccupize [^js e]
-               (cond
-                 (string? e)
-                 e
-                 (instance? js/Text e)
-                 (.-data e)
-                 :else
-                 (let [el [(keyword (str/lower-case (.-tagName e)))]]
-                   (into (if-let [attrs (seq (.getAttributeNames e))]
-                           (conj el (into {}
-                                          (map (juxt csk/->kebab-case-keyword
-                                                     #(truncate-attr (.getAttribute e %))))
-                                          attrs))
-                           el)
-                         (map hiccupize)
-                         (.-childNodes e))))))
-
-(register-printer js/HTMLDocument 'js/HTMLDocument (fn [^js d] {:root (.-documentElement d)}))
-(register-printer js/XMLDocument 'js/XMLDocument (fn [^js d] {:root (.-documentElement d)}))
-(register-printer js/Document 'js/Document (fn [^js d] {:root (.-documentElement d)}))
-
-(extend-type js/Node
-  ITransientCollection
-  (-conj! [^js this child]
-    (.appendChild this child)))
-
-(register-keys-printer js/Window 'js/Window [:location :document :devicePixelRatio :innerWidth :innerHeight])
-
-(register-printer js/Location 'js/Location str)
-
-(register-printer js/HTMLCollection 'js/HTMLCollection #(into [] %))
-(register-printer js/NodeList 'js/NodeList #(into [] %))
-
-
-(when (exists? js/KeyboardEvent)
-  (register-keys-printer js/KeyboardEvent 'js/KeyboardEvent [:type :code :key :ctrlKey :altKey :metaKey :shiftKey :isComposing :location :repeat]))
-
-(when (exists? js/TouchEvent)
-  (register-keys-printer js/TouchEvent 'js/TouchEvent [:altKey :changedTouches :ctrlKey :metaKey :shiftKey :targetTouches :touches])
-  (register-keys-printer js/Touch 'js/Touch [:identifier :screenX :screenY :clientX :clientY :pageX :pageY :target])
-  (register-printer js/TouchList 'js/TouchList (comp vec seq))
-  (lookupify js/TouchEvent)
-  (lookupify js/Touch)
-  (lookupify js/TouchList))
-
-(register-keys-printer js/PointerEvent 'js/PointerEvent [:pointerId :width :height :pressure
-                                                         :tangentialPressure :tiltX :tiltY
-                                                         :twist :pointerType :isPrimary])
-
-(def mouse-event-keys [:altKey :button :buttons :clientX :clientY :ctrlKey :metaKey :movementX :movementY
-                       ;; "These are experimental APIs that should not be used in production code" -- MDN
-                       ;; :offsetX :offsetY :pageX :pageY
-                       :region :relatedTarget :screenX :screenY :shiftKey])
-
-(register-keys-printer js/MouseEvent 'js/MouseEvent mouse-event-keys)
-(register-keys-printer js/WheelEvent 'js/WheelEvent (conj mouse-event-keys :deltaX :deltaY :deltaZ :deltaMode))
-(register-keys-printer js/DragEvent 'js/DragEvent (conj mouse-event-keys :dataTransfer))
-
 (doseq [t [pixi/Application pixi/Renderer pixi/Loader pixi/resources.Resource pixi/Point pixi/ObservablePoint
            pixi/Matrix pixi/Transform #_pixi/Container pixi/Sprite pixi/Texture pixi/BaseTexture pixi/Rectangle
            resource-loader/Resource pixi/resources.Resource pixi/resources.ImageResource pixi/Ticker
            pixi/InteractionEvent pixi/InteractionData js/Window js/PointerEvent
            js/MouseEvent js/WheelEvent js/DragEvent]]
   (lookupify t))
+
+(extend-type js/Node
+  ITransientCollection
+  (-conj! [^js this child]
+    (.appendChild this child)))
