@@ -20,15 +20,29 @@
 ;; Load the sprite sheet, this returns a promise, but thanks to kitchen-async
 ;; that makes little difference.
 ;; This spritesheet JSON was created with TexturePacker.
-(promise/let [{:keys [sprites]} (p/load-resources! game {:sprites "pacman_sprites.min.json"})
-              ;; This is a JS object, with the keys coming from the names in the
-              ;; JSON, and the values being pixi/Texture objects that we can use
-              ;; to make sprites
-              {:keys [textures]} sprites
-              ;; Use js-interop/lookup to easily destructure plain JS objects
-              {:keys [pacman__281_41 pacman__281_1]} (j/lookup textures)
-              ;; Create an animation out of these frames
-              pacman (p/animated-sprite [pacman__281_41 pacman__281_1])]
+(defn move-sprite
+  "Move a sprite based on its current velocity, and the amount of time that has
+  passed."
+  [sprite delta]
+  (j/update! sprite :x + (* (j/get-in sprite [:velocity :x] 0) delta))
+  (j/update! sprite :y + (* (j/get-in sprite [:velocity :y] 0) delta)))
+
+;; p/let is like regular let, unless you sprinkle in some ^await and ^js, then
+;; it gets magical powers.
+(p/let [{:keys [sprites]} ^await (p/load-resources! game {:sprites "pacman_sprites.min.json"})
+        ;; This is a JS object, with the keys coming from the names in the JSON,
+        ;; and the values being pixi/Texture objects that we can use to make
+        ;; sprites. You can destructure certain keys because we implement
+        ;; ILookup on a lot of pixi's built-in types.
+        {:keys [textures]} sprites
+
+        ;; A lot of pixi object can already be destructured because we make them
+        ;; implement ILookup, but if not then p/let can help you. Just tag it as
+        ;; ^js and you can now destructure to your heart's content.
+        {:keys [pacman__281_41 pacman__281_1]} ^js textures
+
+        ;; Create an animation out of these frames
+        pacman (p/animated-sprite [pacman__281_41 pacman__281_1])]
   ;; assign! deeply assigns values, you do a lot of this in pixi, so we added a
   ;; macro to make this easy. When you pass assign! a literal map it will emit
   ;; efficient code to set each nested property individually
@@ -43,16 +57,10 @@
   ;; Add the sprite to the stage container
   (conj! (:stage game) pacman)
   ;; Also store it for later reference
-  (swap! state assoc :pacman pacman))
+  (swap! state assoc :pacman pacman)
 
-(defn move-sprite
-  "Move a sprite based on its current velocity, and the amount of time that has
-  passed."
-  [sprite delta]
-  (j/update! sprite :x + (* (j/get-in sprite [:velocity :x] 0) delta))
-  (j/update! sprite :y + (* (j/get-in sprite [:velocity :y] 0) delta)))
+  (p/listen! (:ticker game) ::on-tick
+             (fn [delta]
+               (run! #(move-sprite % delta) (:stage game)))))
 
 ;; Listen to game "ticks" to do animation and handle game events
-(p/listen! (:ticker game) ::on-tick
-           (fn [delta]
-             (run! #(move-sprite % delta) (:stage game))))
