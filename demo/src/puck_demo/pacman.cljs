@@ -6,6 +6,9 @@
 
 (def state (atom {}))
 
+(def resources
+  {:sprites "pacman_sprites.min.json"})
+
 ;; Initialize the pixi/Application, full-screen-app makes sure you get a canvas
 ;; that is always exactly the size of the browser viewport. We also add some CSS
 ;; to make sure we never get scrollbars or stray maring/padding.
@@ -29,20 +32,19 @@
 
 ;; p/let is like regular let, unless you sprinkle in some ^await and ^js, then
 ;; it gets magical powers.
-(p/let [{:keys [sprites]} ^await (p/load-resources! game {:sprites "pacman_sprites.min.json"})
-        ;; This is a JS object, with the keys coming from the names in the JSON,
-        ;; and the values being pixi/Texture objects that we can use to make
-        ;; sprites. You can destructure certain keys because we implement
-        ;; ILookup on a lot of pixi's built-in types.
-        {:keys [textures]} sprites
+(p/let [;; load-resources takes a map from keyword to resource-url, and returns
+        ;; a promise to a map with the same keys, but with the loaded resources
+        ;; as values
+        {:keys [sprites]} ^await (p/load-resources! game resources)
 
         ;; A lot of pixi object can already be destructured because we make them
         ;; implement ILookup, but if not then p/let can help you. Just tag it as
         ;; ^js and you can now destructure to your heart's content.
-        {:keys [pacman__281_41 pacman__281_1]} ^js textures
+        {:keys [pacman__281_41 pacman__281_1]} ^js (:textures sprites)
 
         ;; Create an animation out of these frames
         pacman (p/animated-sprite [pacman__281_41 pacman__281_1])]
+  (tap> pacman)
   ;; assign! deeply assigns values, you do a lot of this in pixi, so we added a
   ;; macro to make this easy. When you pass assign! a literal map it will emit
   ;; efficient code to set each nested property individually

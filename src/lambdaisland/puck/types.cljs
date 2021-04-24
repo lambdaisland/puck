@@ -42,10 +42,29 @@
   (extend-type type
     protocols/Datafiable
     (datafy [obj]
-      (into ^{:type type} {} (map (juxt identity #(j/get obj %))) keys))
+      (into ^{:type type} {}
+            (comp
+             ;; We start from all properties currently defined on the object,
+             ;; but then clean it up a bit
+             (remove #(and
+                       ;; Never remove the keys we defined
+                       (not (some #{(keyword %)} keys))
+                       ;; Pixi uses _ to mark private variables
+                       (or (= "_" (first %))
+                           ;; ClojureScript protocols contain a $
+                           (some #{"$"} %)
+                           ;; Don't show computed properties
+                           (some->
+                            (js/Object.getOwnPropertyDescriptor obj %)
+                            .-get)
+                           ;; Remove instance methods
+                           (fn? (j/get obj %)))))
+             (map (juxt keyword #(j/get obj %))))
+            (js-keys obj)))
     protocols/Navigable
     (nav [obj k v]
       (j/get obj k))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Pixi
@@ -70,6 +89,7 @@
 (register-keys-printer pixi/Container 'pixi/Container [:children :transform :visible])
 (register-keys-printer pixi/Sprite 'pixi/Sprite [:position :anchor :scale :texture])
 (register-keys-printer pixi/AnimatedSprite 'pixi/AnimatedSprite [:position :anchor :scale :textures :animationSpeed :autoUpdate :currentFrame :loop :playing :totalFrames])
+(register-keys-printer pixi/Spritesheet 'pixi/Spritesheet [:baseTexture :textures :animations :data :resolution])
 (register-keys-printer pixi/Texture 'pixi/Texture [:baseTexture :orig :trim])
 (register-keys-printer pixi/BaseTexture 'pixi/BaseTexture [:width :height :resolution :resource])
 (register-keys-printer pixi/Rectangle 'pixi/Rectangle [:x :y :width :height])

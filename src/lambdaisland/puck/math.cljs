@@ -52,4 +52,4 @@
      ;; Check the angle between the two edges formed by these three vertices
      (clockwise? (v- b c) (v- b a))))
   ([v1 v2]
-   (pos-int? (winding v1 v2))))
+   (< (winding v1 v2) 0)))

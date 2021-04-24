@@ -34,7 +34,7 @@
   (reduce
    (fn [body [a b]]
      (if (= 'await (:tag (meta b)))
-       `((promise/then ~b (cljs/fn [~a] ~@body)))
+       `(promise/->promise (promise/then ~b (cljs/fn [~a] ~@body)))
        `((let* ~(cljs/destructure [a b]) ~@body))))
    body
    (reverse

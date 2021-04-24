@@ -1,9 +1,9 @@
 {:paths ["src" "resources"]
  :deps {lambdaisland/puck {:local/root ".."}
         lambdaisland/webstuff {:sha "fae90bc1d280dfe14f6259aae9428774fa549c4e"
-                               :git/url "https://github.com/lambdaisland/webstuff"}}
+                               :git/url "https://github.com/lambdaisland/webstuff"}
+        djblue/portal {:local/root "/home/arne/github/portal"}}
  :aliases
  {:dev
   {:extra-paths ["dev"]
-   :extra-deps  {thheller/shadow-cljs {:mvn/version "2.11.26"}
-                 djblue/portal        {:mvn/version "0.10.0"}}}}}
+   :extra-deps  {thheller/shadow-cljs {:mvn/version "2.11.26"}}}}}
