@@ -253,6 +253,9 @@
 (defn local-position [interaction-data display-object]
   (.getLocalPosition ^js interaction-data ^js display-object))
 
+(defn global-position [display-object]
+  (.getGlobalPosition display-object))
+
 (defn point
   "Create a pixi/Point (2D vector)"
   [x y]
@@ -343,14 +346,20 @@
 (defn line-style [g line-opts]
   (.lineStyle g (js-object line-opts)))
 
-(defn line
+(defn draw-line
   ([g p1 p2]
    (.drawPolygon ^js g (j/lit [p1 p2])))
   ([g x1 y1 x2 y2]
-   (line g (point x1 y1) (point x2 y2))))
+   (draw-line g (point x1 y1) (point x2 y2))))
 
-(defn rect [g x y width height]
+(defn draw-rect [g x y width height]
   (.drawRect ^js g x y width height))
+
+(defn draw-circle [g x y radius]
+  (.drawCircle ^js g x y radius))
+
+(defn draw-ellipse [g x y width height]
+  (.drawEllipse ^js g x y width height))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Animation

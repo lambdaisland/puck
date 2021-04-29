@@ -31,15 +31,16 @@
   lookup on it, ^await rewrites the code to resolve promise. If you use any
   ^await then the whole `let` will return a promise."
   [bindings & body]
-  (reduce
-   (fn [body [a b]]
-     (if (= 'await (:tag (meta b)))
-       `(promise/->promise (promise/then ~b (cljs/fn [~a] ~@body)))
-       `((let* ~(cljs/destructure [a b]) ~@body))))
-   body
-   (reverse
-    (map (fn [[a b]]
-           [a (if (= 'js (:tag (meta b)))
-                `(j/lookup ~b)
-                b)])
-         (partition 2 bindings)))))
+  (first
+   (reduce
+    (fn [body [a b]]
+      (if (= 'await (:tag (meta b)))
+        `((promise/->promise (promise/then ~b (cljs/fn [~a] ~@body))))
+        `((let* ~(cljs/destructure [a b]) ~@body))))
+    body
+    (reverse
+     (map (fn [[a b]]
+            [a (if (= 'js (:tag (meta b)))
+                 `(j/lookup ~b)
+                 b)])
+          (partition 2 bindings))))))
