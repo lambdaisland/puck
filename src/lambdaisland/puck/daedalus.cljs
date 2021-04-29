@@ -18,11 +18,11 @@
     (.moveTo graphics x y))
   (lineTo [this x y]
     (.lineTo graphics x y))
-  (quadTo [cx cy ax ay]
-    (.quadraticCurveTo cx cy ax ay))
-  (drawCircle [cx cy radius]
+  (quadTo [this cx cy ax ay]
+    (.quadraticCurveTo graphics cx cy ax ay))
+  (drawCircle [this cx cy radius]
     (.drawCircle graphics cx cy radius))
-  (drawRect [x y width height]
+  (drawRect [this x y width height]
     (.drawRect graphics x y width height))
   (drawTri [this points]
     (.drawPolygon graphics (into-array (map (fn [[x y]] (puck/point x y))
