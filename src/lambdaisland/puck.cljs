@@ -178,7 +178,7 @@
   js/Element
   (-listen! [el sig key cb]
     (-unlisten! el sig key)
-    (j/assoc-in! el [:__listeners (key-str key)] cb)
+    (j/assoc-in! el [:__listeners (key-str sig) (key-str key)] cb)
     (.addEventListener el (key-str sig) cb))
   (-unlisten! [el sig key]
     (when-let [listener (j/get-in el [:__listeners (key-str sig) (key-str key)])]
@@ -343,7 +343,19 @@
 (defn end-fill [g]
   (.endFill ^js g))
 
-(defn line-style [g line-opts]
+(defn line-style
+  "- alignment
+   - alpha
+   - cap
+   - color
+   - join
+   - matrix
+   - miterLimit
+   - native
+   - texture
+   - visible
+   - width"
+  [g line-opts]
   (.lineStyle g (js-object line-opts)))
 
 (defn draw-line
@@ -360,6 +372,11 @@
 
 (defn draw-ellipse [g x y width height]
   (.drawEllipse ^js g x y width height))
+
+(defn clear!
+  "Clear the graphics object and reset fill/line styles"
+  [g]
+  (.clear ^js g))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Animation

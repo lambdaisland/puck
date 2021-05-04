@@ -7,7 +7,8 @@
  :builds
  {:main
   {:target     :browser
-   :modules    {:main {:entries [puck-demo.pacman]}}
+   :modules    {:main {:entries [#_puck-demo.pacman
+                                 puck-demo.circle-packing]}}
    :output-dir "resources/public/ui"
    :asset-path "/ui"
    :devtools   {:infer-externs :auto
