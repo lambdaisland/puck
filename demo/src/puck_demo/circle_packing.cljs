@@ -18,12 +18,14 @@
         radius 2]
     {:x (+ radius (rand-int (- width radius radius)))
      :y (+ radius (rand-int (- height radius radius)))
-     :r radius}))
+     :r radius
+     :line (+ 0x098555 (rand-int 100))
+     :fill (- 0x098555 (rand-int 100))}))
 
-(defn draw-circle [{:keys [x y r]}]
-  (p/line-style g {:color 0x0F1FEF :width 1 :alpha 0.8})
-  (p/with-fill [g {:color 0x151515
-                   :alpha 0.7}]
+(defn draw-circle [{:keys [x y r line fill]}]
+  (p/line-style g {:color 0xFFFFFF #_line :width 0.5 :alpha 1})
+  (p/with-fill [g {:color fill
+                   :alpha 0.9}]
     (p/draw-circle g x y r)))
 
 (defn can-grow? [{:keys [x y r done?] :as this} circles]
@@ -55,11 +57,16 @@
       (conj circles circle)
       (recur (rand-circle)))))
 
-(def circles (atom [(rand-circle)]))
+(defonce circles (atom [(rand-circle)]))
 
-(p/listen! (:ticker game) ::tick
-           (fn [_]
-             (p/clear! g)
-             (swap! circles (comp grow-circles add-circle add-circle))
-             (run! draw-circle @circles)
-             ))
+(p/unlisten! (:ticker game) ::tick
+             #_      (fn [_]
+                       (p/clear! g)
+                       (swap! circles (comp grow-circles #_#_ grow-circles add-circle))
+                       (run! draw-circle @circles)
+                       ))
+
+
+(swap! circles #(nth (iterate add-circle %) 200))
+(p/clear! g)
+(run! draw-circle @circles)

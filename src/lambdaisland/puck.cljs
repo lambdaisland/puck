@@ -148,11 +148,11 @@
   pixi-utils/EventEmitter
   (-listen! [obj signal key callback]
     (-unlisten! obj signal key)
-    (j/assoc-in! obj [:__listeners (key-str key)] callback)
+    (j/assoc-in! obj [:__listeners (key-str signal) (key-str key)] callback)
     (.on ^js obj (key-str signal) callback))
   (-unlisten! [obj signal key]
-    (when-let [callback (j/get-in obj [:__listeners (key-str key)])]
-      (js-delete (j/get obj :__listeners) (key-str key))
+    (when-let [callback (j/get-in obj [:__listeners (key-str signal) (key-str key)])]
+      (js-delete (j/get-in obj [:__listeners (key-str signal)]) (key-str key))
       (.removeListener ^js obj (key-str signal) callback)))
 
   ;; Add listener to a Loader, signal can be one of `:error`, `:load`, `:start`,
