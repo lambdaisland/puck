@@ -210,6 +210,13 @@
   [app resource-name texture-name]
   (j/get (:textures (resource app resource-name)) texture-name))
 
+(defn base-texture
+  "Construct a new BaseTexture"
+  ([resource]
+   (base-texture resource nil))
+  ([resource options]
+   (pixi/BaseTexture. resource options)))
+
 (defn texture
   "Construct a texture based on a base texture and a rect."
   [base rect]
@@ -386,3 +393,44 @@
 
 (defn stop! [animated-sprite]
   (.stop ^js animated-sprite))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Direct manipulation of textures
+
+(defn ->u32a
+  "Convert to Uint32Array"
+  [coll]
+  (cond
+    (and (or (seq? coll) (seqable? coll))
+         (not (array? coll)))
+    (->u32a (into-array coll))
+    (instance? js/ArrayBuffer coll)
+    (js/Uint32Array. coll)
+    :else
+    (js/Uint32Array.from coll)))
+
+(defn ->u8a
+  "Convert a seq/seqable with 32-bit integers into a Uint8Array"
+  [coll]
+  (cond
+    (and (or (seq? coll) (seqable? coll))
+         (not (array? coll)))
+    (->u8a (into-array coll))
+    (instance? js/ArrayBuffer coll)
+    (js/Uint8Array. coll)
+    :else
+    (js/Uint8Array.from coll)))
+
+(defn buffer-resource
+  "Create a BufferResource from a Uint8Array
+
+  size-options:
+  - `:width`
+  - `:height`"
+  [u8a size-options]
+  (pixi/resources.BufferResource.
+   u8a
+   (if (map? size-options)
+     #js {:width (:width size-options)
+          :height (:height size-options)}
+     size-options)))

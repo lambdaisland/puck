@@ -1,7 +1,13 @@
 (ns cljs.user
-  (:require [portal.web]))
+  (:require [portal.web :as portal]))
 
-(add-tap #'portal.web/submit)
+(def portal-instance nil)
 
-(defn portal []
-  (portal.web/open))
+(defn portal
+  "Open a Portal window and register a tap handler for it. The result can be
+  treated like an atom."
+  []
+  (let [p (portal/open portal-instance)]
+    (set! portal-instance p)
+    (add-tap #'portal/submit)
+    p))

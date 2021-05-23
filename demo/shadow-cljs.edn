@@ -8,7 +8,8 @@
  {:main
   {:target     :browser
    :modules    {:main {:entries [#_puck-demo.pacman
-                                 puck-demo.circle-packing]}}
+                                 #_puck-demo.circle-packing
+                                 puck-demo.pixel-editor]}}
    :output-dir "resources/public/ui"
    :asset-path "/ui"
    :devtools   {:infer-externs :auto

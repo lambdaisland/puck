@@ -97,9 +97,12 @@
 (register-keys-printer pixi/FillStyle 'pixi/FillStyle [:alpha :color :matrix :texture :visible])
 (register-keys-printer pixi/LineStyle 'pixi/LineStyle [:alignment :cap :join :miterLimit :native :width :alpha :color :matrix :texture :visible])
 
-(register-keys-printer resource-loader/Resource 'resource-loader/Resource [:name :url :type :metadata :spritesheet :textures])
-(register-keys-printer pixi/resources.Resource 'pixi/Resource [:name :url :type :metadata :spritesheet :textures])
-(register-keys-printer pixi/resources.ImageResource 'pixi/ImageResource [:url])
+(register-keys-printer pixi/GraphicsData 'pixi/GraphicsData [:shape :lineStyle :fillStyle :matrix :type :points :holes])
+
+(register-keys-printer resource-loader/Resource 'resource-loader/Resource [:name :url :type :metadata :spritesheet :textures :width :height])
+(register-keys-printer pixi/resources.BufferResource 'pixi/BufferResource [:width :height :data])
+(register-keys-printer pixi/resources.Resource 'pixi/Resource [:name :url :type :metadata :spritesheet :textures :width :height])
+(register-keys-printer pixi/resources.ImageResource 'pixi/ImageResource [:url :width :height])
 
 (register-keys-printer pixi/Ticker 'pixi/Ticker [:deltaTime :deltaMS :elapsedMS :lastTime :speed :started])
 
