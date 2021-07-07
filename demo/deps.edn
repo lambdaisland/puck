@@ -2,7 +2,8 @@
  :deps {lambdaisland/puck {:local/root ".."}
         lambdaisland/webstuff {:sha "fae90bc1d280dfe14f6259aae9428774fa549c4e"
                                :git/url "https://github.com/lambdaisland/webstuff"}
-        djblue/portal {:local/root "/home/arne/github/portal"}}
+        djblue/portal {:mvn/version "0.12.0"}}
+ 
  :aliases
  {:dev
   {:extra-paths ["dev"]
