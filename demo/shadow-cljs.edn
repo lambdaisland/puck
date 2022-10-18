@@ -15,4 +15,4 @@
    :devtools   {:infer-externs :auto
                 :repl-pprint true
                 :warnings-as-errors #{:undeclared-var}
-                :after-load spel.core/on-hot-reload}}}}
+                :after-load puck-demo.pixel-editor/reinit!}}}}
